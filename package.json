@@ -13,11 +13,10 @@
     "react-dom": "^18.2.0",
     "next": "^14.0.0",
     "@supabase/supabase-js": "^2.38.0",
-    "lucide-react": "^0.263.1"
-  },
-  "devDependencies": {
+    "lucide-react": "^0.263.1",
     "tailwindcss": "^3.3.0",
     "postcss": "^8",
     "autoprefixer": "^10"
-  }
+  },
+  "devDependencies": {}
 }
