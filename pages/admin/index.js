@@ -231,7 +231,7 @@ export default function AdminProductsPage() {
                           </td>
                           <td className="p-3 text-stone-700">{catMap.get(p.category_square_id)?.name || '—'}</td>
                           <td className="p-3 text-right tabular-nums">{money(p.price_cents)}</td>
-                          <td className={`p-3 text-right tabular-nums ${qty === null ? 'text-stone-500' : qty <= 0 ? 'text-red-700 font-semibold' : qty < 10 ? 'text-amber-800 font-semibold' : ''}`}>
+                          <td className={`p-3 text-right tabular-nums ${qty === null ? 'text-stone-500' : qty <= 0 ? 'text-red-700 font-semibold' : qty <= (p.low_stock_alert ?? 5) ? 'text-amber-800 font-semibold' : ''}`}>
                             {qty === null ? 'Not tracked' : qty}
                           </td>
                           <td className="p-3"><span className={`text-xs font-semibold px-2 py-1 rounded-full whitespace-nowrap ${st.cls}`}>{st.label}</span></td>
@@ -279,7 +279,7 @@ export default function AdminProductsPage() {
                         {categories.map((c) => <option key={c.square_id} value={c.square_id}>{c.name}</option>)}
                       </select>
                     </label>
-                    <p className="text-xs text-stone-500">Stock changes come with the Inventory screen, so each change has a reason recorded.</p>
+                    <p className="text-xs text-stone-500">Change stock on the <Link href="/admin/inventory" className="underline">Inventory</Link> screen, so each change has a reason recorded.</p>
                   </div>
 
                   <hr className="border-stone-200" />

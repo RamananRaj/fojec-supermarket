@@ -6,7 +6,7 @@ import { useAuth } from '../lib/AuthContext';
 const TABS = [
   { label: 'Dashboard', soon: true },
   { label: 'Products', href: '/admin' },
-  { label: 'Inventory', soon: true },
+  { label: 'Inventory', href: '/admin/inventory' },
   { label: 'Orders', soon: true },
   { label: 'Customers', soon: true },
   { label: 'Settings', href: '/admin/settings' },
