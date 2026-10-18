@@ -1,8 +1,10 @@
+import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Menu, X, Search, Home, User, Heart, ChevronDown, Plus, Minus, Trash2, Check, AlertCircle, Gift } from 'lucide-react';
 
 // Mobile-First Fojec Supermarket Website
 export default function FojejMobileWebsite() {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState('home'); // home, products, cart, account, loyalty
   const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]);
@@ -88,7 +90,7 @@ export default function FojejMobileWebsite() {
               <button onClick={() => setCurrentPage('home')} className="text-white font-bold hover:text-yellow-300 transition">Home</button>
               <button onClick={() => setCurrentPage('products')} className="text-white font-bold hover:text-yellow-300 transition">Shop</button>
               <button onClick={() => setCurrentPage('loyalty')} className="text-white font-bold hover:text-yellow-300 transition">Loyalty 💎</button>
-              <button onClick={() => setCurrentPage('account')} className="text-white font-bold hover:text-yellow-300 transition">Account</button>
+              <button onClick={() => router.push('/account')} className="text-white font-bold hover:text-yellow-300 transition">Account</button>
             </nav>
           </div>
 
@@ -110,7 +112,7 @@ export default function FojejMobileWebsite() {
             <button onClick={() => { setCurrentPage('home'); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm hover:text-yellow-300">Home</button>
             <button onClick={() => { setCurrentPage('products'); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm hover:text-yellow-300">Shop</button>
             <button onClick={() => { setCurrentPage('loyalty'); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm hover:text-yellow-300">Loyalty 💎</button>
-            <button onClick={() => { setCurrentPage('account'); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm hover:text-yellow-300">Account</button>
+            <button onClick={() => { router.push('/account'); setMenuOpen(false); }} className="block w-full text-left py-2 text-sm hover:text-yellow-300">Account</button>
           </div>
         )}
       </div>
@@ -521,7 +523,7 @@ export default function FojejMobileWebsite() {
       </button>
 
       <button
-        onClick={() => setCurrentPage('account')}
+        onClick={() => router.push('/account')}
         className={`flex-1 py-3 text-center transition ${currentPage === 'account' ? 'text-green-700 border-t-4 border-green-700 bg-green-50' : 'text-gray-600 hover:text-gray-900'}`}
       >
         <User size={24} className="mx-auto" />
