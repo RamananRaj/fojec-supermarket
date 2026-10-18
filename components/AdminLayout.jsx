@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useAuth } from '../lib/AuthContext';
 
 const TABS = [
-  { label: 'Dashboard', soon: true },
+  { label: 'Dashboard', href: '/admin/dashboard' },
   { label: 'Products', href: '/admin' },
   { label: 'Inventory', href: '/admin/inventory' },
   { label: 'Orders', soon: true },
