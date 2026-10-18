@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
+import { loadShopCatalog } from '../lib/catalog';
 import { ShoppingCart, Menu, X, Search, Home, User, Heart, ChevronDown, Plus, Minus, Trash2, Check, AlertCircle, Gift } from 'lucide-react';
 
 // Mobile-First Fojec Supermarket Website
@@ -14,34 +15,28 @@ export default function FojejMobileWebsite() {
   const [customerPoints, setCustomerPoints] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Mock data - replace with Supabase later
-  useEffect(() => {
-    const mockProducts = [
-      { id: 1, name: 'Rice (500g)', price: 12.50, category: 'African Foodstuffs', image: '🍚', stock: 45, rating: 4.8, reviews: 24 },
-      { id: 2, name: 'Frozen Fish (1kg)', price: 18.99, category: 'Frozen Foods', image: '🐟', stock: 12, rating: 4.6, reviews: 18 },
-      { id: 3, name: 'Premium Coffee (250g)', price: 8.50, category: 'Teas & Beverages', image: '☕', stock: 32, rating: 4.9, reviews: 42 },
-      { id: 4, name: 'Millet (1kg)', price: 15.99, category: 'African Foodstuffs', image: '🌾', stock: 28, rating: 4.7, reviews: 15 },
-      { id: 5, name: 'Frozen Vegetables', price: 9.99, category: 'Frozen Foods', image: '🥬', stock: 50, rating: 4.5, reviews: 22 },
-      { id: 6, name: 'Herbal Tea', price: 6.50, category: 'Teas & Beverages', image: '🫖', stock: 38, rating: 4.8, reviews: 19 },
-    ];
-    setProducts(mockProducts);
-  }, []);
+  const [categories, setCategories] = useState([]);
+  const [catalogLoaded, setCatalogLoaded] = useState(false);
 
-  const categories = [
-    { id: 1, name: 'African Foodstuffs', emoji: '🍚' },
-    { id: 2, name: 'Frozen Foods', emoji: '🥶' },
-    { id: 3, name: 'Teas & Beverages', emoji: '☕' },
-    { id: 4, name: 'Make-up Services', emoji: '💄' },
-  ];
+  // Products come from Square via Supabase (see lib/catalog.js).
+  useEffect(() => {
+    loadShopCatalog().then(({ products: p, categories: c }) => {
+      setProducts(p);
+      setCategories(c);
+      setCatalogLoaded(true);
+    });
+  }, []);
 
   const filteredProducts = selectedCategory 
     ? products.filter(p => p.category === selectedCategory)
     : searchQuery
-    ? products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    ? products.filter(p => `${p.name} ${p.keywords || ''}`.toLowerCase().includes(searchQuery.toLowerCase()))
     : products;
 
   const addToCart = (product) => {
+    if (product.soldOut) return;
     const existing = cart.find(item => item.id === product.id);
+    if (existing && product.stock !== null && existing.quantity >= product.stock) return;
     if (existing) {
       setCart(cart.map(item => 
         item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
@@ -152,20 +147,18 @@ export default function FojejMobileWebsite() {
       <div className="max-w-6xl mx-auto px-4 py-12">
         <h3 className="text-4xl font-bold mb-8 text-gray-900">🔥 Top Sellers</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.slice(0, 3).map(product => (
+          {[...products].sort((a, b) => Number(b.featured) - Number(a.featured)).slice(0, 3).map(product => (
             <div key={product.id} className="bg-white p-6 rounded-2xl shadow-md hover:shadow-2xl transition transform hover:scale-105 border border-gray-100">
-              <div className="text-6xl mb-4 text-center">{product.image}</div>
+              <ProductImage product={product} />
               <h4 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h4>
-              <p className="text-sm text-gray-600 flex items-center gap-1 mb-3">
-                ⭐ {product.rating} ({product.reviews} reviews)
-              </p>
-              <p className="text-3xl font-bold text-orange-600 mb-2">${product.price}</p>
-              <p className="text-sm text-gray-600 mb-4">{product.stock > 0 ? `✓ ${product.stock} in stock` : 'Out of stock'}</p>
+              <p className="text-3xl font-bold text-orange-600 mb-2">${product.price.toFixed(2)}</p>
+              <StockNote product={product} />
               <button 
                 onClick={() => addToCart(product)}
-                className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition"
+                disabled={product.soldOut}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition disabled:from-gray-300 disabled:to-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
               >
-                Add to Cart
+                {product.soldOut ? 'Sold out' : 'Add to Cart'}
               </button>
             </div>
           ))}
@@ -252,18 +245,16 @@ export default function FojejMobileWebsite() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredProducts.map(product => (
             <div key={product.id} className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-2xl transition transform hover:scale-105">
-              <div className="text-6xl mb-4 text-center">{product.image}</div>
+              <ProductImage product={product} />
               <h4 className="font-bold text-gray-900 mb-2 line-clamp-2">{product.name}</h4>
-              <p className="text-sm text-gray-600 flex items-center gap-1 mb-2">
-                ⭐ {product.rating} ({product.reviews})
-              </p>
-              <p className="text-2xl font-bold text-orange-600 mb-2">${product.price}</p>
-              <p className="text-sm text-gray-600 mb-4">{product.stock > 0 ? `✓ ${product.stock} available` : 'Out of stock'}</p>
+              <p className="text-2xl font-bold text-orange-600 mb-2">${product.price.toFixed(2)}</p>
+              <StockNote product={product} />
               <button 
                 onClick={() => addToCart(product)}
-                className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-2 rounded-xl font-bold hover:shadow-lg transition"
+                disabled={product.soldOut}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white py-2 rounded-xl font-bold hover:shadow-lg transition disabled:from-gray-300 disabled:to-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
               >
-                Add to Cart
+                {product.soldOut ? 'Sold out' : 'Add to Cart'}
               </button>
             </div>
           ))}
@@ -303,10 +294,10 @@ export default function FojejMobileWebsite() {
             {cart.map(item => (
               <div key={item.id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                 <div className="flex gap-3">
-                  <div className="text-3xl">{item.image}</div>
+                  <div className="text-3xl">{item.imageUrl ? <img src={item.imageUrl} alt="" className="w-12 h-12 rounded-lg object-cover" /> : item.emoji}</div>
                   <div className="flex-1">
                     <h4 className="font-bold text-gray-900">{item.name}</h4>
-                    <p className="text-lg font-bold text-red-600">${item.price}</p>
+                    <p className="text-lg font-bold text-red-600">${item.price.toFixed(2)}</p>
                     
                     {/* Quantity */}
                     <div className="flex items-center gap-2 mt-2">
@@ -544,4 +535,19 @@ export default function FojejMobileWebsite() {
       <BottomNav />
     </div>
   );
+}
+
+function ProductImage({ product }) {
+  if (product.imageUrl) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={product.imageUrl} alt={product.name} className="w-full h-40 object-cover rounded-xl mb-4" />;
+  }
+  return <div className="text-6xl mb-4 text-center h-40 flex items-center justify-center bg-orange-50 rounded-xl" aria-hidden="true">{product.emoji}</div>;
+}
+
+function StockNote({ product }) {
+  let text = '✓ In stock';
+  if (product.soldOut) text = 'Sold out';
+  else if (product.stock !== null && product.stock <= 5) text = `Only ${product.stock} left`;
+  return <p className={`text-sm mb-4 ${product.soldOut ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>{text}</p>;
 }

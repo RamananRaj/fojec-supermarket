@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout';
+import ProductSyncCard from '../../components/admin/ProductSyncCard';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../lib/AuthContext';
 
@@ -230,13 +231,8 @@ export default function SettingsPage() {
             )}
           </section>
 
-          {/* Product sync placeholder */}
-          <section className={card}>
-            <h2 className="text-lg font-semibold">Product sync</h2>
-            <p className="text-stone-700">
-              Next step: once Square is connected, products, prices and stock will copy across from Square automatically, with a “Sync now” button and a log here.
-            </p>
-          </section>
+          {/* Product sync */}
+          <ProductSyncCard connected={Boolean(square?.connected)} hasLocation={Boolean(square?.locationId)} />
 
           {shop && (
             <>
