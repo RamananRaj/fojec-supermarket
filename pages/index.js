@@ -27,11 +27,12 @@ export default function FojejMobileWebsite() {
     });
   }, []);
 
-  const filteredProducts = selectedCategory 
-    ? products.filter(p => p.category === selectedCategory)
-    : searchQuery
-    ? products.filter(p => `${p.name} ${p.keywords || ''}`.toLowerCase().includes(searchQuery.toLowerCase()))
-    : products;
+  // Category and search work together; search also matches the admin's search words.
+  const filteredProducts = products.filter(p => {
+    if (selectedCategory && p.category !== selectedCategory) return false;
+    const q = searchQuery.trim().toLowerCase();
+    return !q || `${p.name} ${p.category} ${p.keywords || ''}`.toLowerCase().includes(q);
+  });
 
   const addToCart = (product) => {
     if (product.soldOut) return;
@@ -528,10 +529,10 @@ export default function FojejMobileWebsite() {
   // ============================================================================
   return (
     <div className="bg-white">
-      {currentPage === 'home' && <HomePage />}
-      {currentPage === 'products' && <ProductsPage />}
-      {currentPage === 'cart' && <CartPage />}
-      {currentPage === 'loyalty' && <LoyaltyPage />}
+      {currentPage === 'home' && HomePage()}
+      {currentPage === 'products' && ProductsPage()}
+      {currentPage === 'cart' && CartPage()}
+      {currentPage === 'loyalty' && LoyaltyPage()}
       <BottomNav />
     </div>
   );

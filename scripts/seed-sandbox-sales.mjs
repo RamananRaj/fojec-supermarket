@@ -47,6 +47,7 @@ if (!pool.length) throw new Error('No items with at least 3 in stock. Record a d
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 let total = 0;
+let made = 0;
 
 for (let n = 0; n < howMany; n += 1) {
   const online = n % 4 === 3; // roughly 1 in 4 marked as a website order
@@ -83,8 +84,9 @@ for (let n = 0; n < howMany; n += 1) {
     },
   });
   total += Number(order.total_money.amount);
+  made += 1;
   console.log(`${online ? 'Online' : 'Till  '} sale: $${(order.total_money.amount / 100).toFixed(2)} (${lines.length} item${lines.length === 1 ? '' : 's'})`);
 }
 
-console.log(`Done: ${howMany} test sales, $${(total / 100).toFixed(2)} in total.`);
+console.log(`Done: ${made} test sales, $${(total / 100).toFixed(2)} in total.`);
 console.log('Open the admin Dashboard. Click Sync now on Settings to update stock on the website.');
